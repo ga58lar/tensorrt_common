@@ -30,6 +30,7 @@ namespace fs = ::std::experimental::filesystem;
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace tensorrt_common
 {
