@@ -18,12 +18,12 @@ find_package(CUDNN REQUIRED)
 find_package(TENSORRT REQUIRED)
 
 if(NOT DEFINED TENSORRT_VERSION_MAJOR)
-    if(DEFINED NV_TENSORRT_MAJOR)
-        set(TENSORRT_VERSION_MAJOR ${NV_TENSORRT_MAJOR})
-    else()
-        message(FATAL_ERROR "Could not determine TensorRT version")
-    endif()
+  message(FATAL_ERROR "Could not determine TensorRT version")
 endif()
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+  TENSORRT_VERSION_MAJOR=${TENSORRT_VERSION_MAJOR}
+)
 
 cuda_add_library(${PROJECT_NAME} SHARED
   src/tensorrt_common.cpp
