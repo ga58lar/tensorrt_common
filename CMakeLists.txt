@@ -17,14 +17,6 @@ find_package(CUDA REQUIRED)
 find_package(CUDNN REQUIRED)
 find_package(TENSORRT REQUIRED)
 
-if(NOT DEFINED TENSORRT_VERSION_MAJOR)
-  message(FATAL_ERROR "Could not determine TensorRT version")
-endif()
-
-target_compile_definitions(${PROJECT_NAME} PUBLIC
-  TENSORRT_VERSION_MAJOR=${TENSORRT_VERSION_MAJOR}
-)
-
 cuda_add_library(${PROJECT_NAME} SHARED
   src/tensorrt_common.cpp
 )
@@ -33,10 +25,12 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     ${TENSORRT_INCLUDE_DIRS}
+    ${CUDNN_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME}
   ${TENSORRT_LIBRARIES}
+  ${CUDNN_LIBRARIES}
   stdc++fs
 )
 

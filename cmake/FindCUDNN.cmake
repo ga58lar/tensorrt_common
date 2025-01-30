@@ -1,27 +1,25 @@
-# Find CUDNN
-find_path(CUDNN_INCLUDE_DIR
-  NAMES cudnn.h
-  PATHS ${CUDA_TOOLKIT_ROOT_DIR}
-  PATH_SUFFIXES include cuda/include
-)
+# Based on https://github.com/tier4/cudnn_cmake_module
+if(DEFINED ENV{CUDNN_ROOT})
+  set(CUDNN_ROOT $ENV{CUDNN_ROOT})
+endif()
 
-find_library(CUDNN_LIBRARY
-  NAMES cudnn
-  PATHS ${CUDA_TOOLKIT_ROOT_DIR}
-  PATH_SUFFIXES lib64 cuda/lib64 lib/x64
-)
+if(NOT CUDNN_ROOT AND CUDA_TOOLKIT_ROOT_DIR)
+  set(CUDNN_ROOT "${CUDA_TOOLKIT_ROOT_DIR}")
+endif()
+
+find_path(CUDNN_INCLUDE_DIR cudnn.h
+  HINTS ${CUDNN_ROOT} /usr/include /usr/local/include
+  PATH_SUFFIXES include cuda/include)
+
+find_library(CUDNN_LIBRARY cudnn
+  HINTS ${CUDNN_ROOT} /usr/lib/x86_64-linux-gnu /usr/local/lib
+  PATH_SUFFIXES lib lib64 cuda/lib cuda/lib64)
+
+set(CUDNN_INCLUDE_DIRS ${CUDNN_INCLUDE_DIR})
+set(CUDNN_LIBRARIES ${CUDNN_LIBRARY})
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(
-  CUDNN
-  FOUND_VAR CUDNN_FOUND
-  REQUIRED_VARS CUDNN_INCLUDE_DIR CUDNN_LIBRARY
+find_package_handle_standard_args(CUDNN DEFAULT_MSG
+  CUDNN_INCLUDE_DIR
+  CUDNN_LIBRARY
 )
-
-if(CUDNN_FOUND AND NOT TARGET CUDNN::CUDNN)
-  add_library(CUDNN::CUDNN UNKNOWN IMPORTED)
-  set_target_properties(CUDNN::CUDNN PROPERTIES
-    IMPORTED_LOCATION "${CUDNN_LIBRARY}"
-    INTERFACE_INCLUDE_DIRECTORIES "${CUDNN_INCLUDE_DIR}"
-  )
-endif()
