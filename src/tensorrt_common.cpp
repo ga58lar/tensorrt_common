@@ -166,20 +166,24 @@ bool TrtCommon::buildEngineFromOnnx(
     config->setInt8Calibrator(calibrator_.get());
   }
 
-#if TENSORRT_VERSION_MAJOR >= 8
-  auto plan =
-    TrtUniquePtr<nvinfer1::IHostMemory>(builder->buildSerializedNetwork(*network, *config));
-  if (!plan) {
-    logger_.log(nvinfer1::ILogger::Severity::kERROR, "Fail to create host memory");
-    return false;
-  }
-  engine_ =
-    TrtUniquePtr<nvinfer1::ICudaEngine>(
-    runtime_->deserializeCudaEngine(
-      plan->data(),
-      plan->size()));
+#ifdef TENSORRT_VERSION_MAJOR
+  #if TENSORRT_VERSION_MAJOR >= 8
+    auto plan =
+      TrtUniquePtr<nvinfer1::IHostMemory>(builder->buildSerializedNetwork(*network, *config));
+    if (!plan) {
+      logger_.log(nvinfer1::ILogger::Severity::kERROR, "Fail to create host memory");
+      return false;
+    }
+    engine_ =
+      TrtUniquePtr<nvinfer1::ICudaEngine>(
+      runtime_->deserializeCudaEngine(
+        plan->data(),
+        plan->size()));
+  #else
+    engine_ = TrtUniquePtr<nvinfer1::ICudaEngine>(builder->buildEngineWithConfig(*network, *config));
+  #endif
 #else
-  engine_ = TrtUniquePtr<nvinfer1::ICudaEngine>(builder->buildEngineWithConfig(*network, *config));
+  #error "TENSORRT_VERSION_MAJOR must be defined"
 #endif
 
   if (!engine_) {

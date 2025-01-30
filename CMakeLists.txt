@@ -16,6 +16,20 @@ find_package(CUDA REQUIRED)
 find_package(CUDNN REQUIRED)
 find_package(TENSORRT REQUIRED)
 
+# Define TensorRT version from NV_TENSORRT defines
+if(NOT DEFINED TENSORRT_VERSION_MAJOR)
+    if(DEFINED NV_TENSORRT_MAJOR)
+        set(TENSORRT_VERSION_MAJOR ${NV_TENSORRT_MAJOR})
+    else()
+        message(FATAL_ERROR "Could not determine TensorRT version")
+    endif()
+endif()
+
+# Add to compile definitions
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+    TENSORRT_VERSION_MAJOR=${TENSORRT_VERSION_MAJOR}
+)
+
 if(NOT (${CUDA_FOUND} AND ${CUDNN_FOUND} AND ${TENSORRT_FOUND}))
   message(WARNING "cuda, cudnn, tensorrt libraries are not found")
   return()
