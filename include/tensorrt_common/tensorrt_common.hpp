@@ -15,8 +15,6 @@
 #ifndef TENSORRT_COMMON__TENSORRT_COMMON_HPP_
 #define TENSORRT_COMMON__TENSORRT_COMMON_HPP_
 
-#include <rclcpp/rclcpp.hpp>
-
 #include <NvInfer.h>
 #include <NvOnnxParser.h>
 
@@ -53,25 +51,24 @@ public:
 
       switch (severity) {
         case Severity::kINTERNAL_ERROR:
-          RCLCPP_ERROR_STREAM(logger_, msg);
+          std::cout << "INTERNAL ERROR: " << msg << std::endl;
           break;
         case Severity::kERROR:
-          RCLCPP_ERROR_STREAM(logger_, msg);
+          std::cout << "ERROR: " << msg << std::endl;
           break;
         case Severity::kWARNING:
-          RCLCPP_WARN_STREAM(logger_, msg);
+          std::cout << "WARN: " << msg << std::endl;
           break;
         case Severity::kINFO:
-          RCLCPP_INFO_STREAM(logger_, msg);
+          std::cout << "INFO: " << msg << std::endl;
           break;
         default:
-          RCLCPP_INFO_STREAM(logger_, msg);
+          std::cout << "INFO: " << msg << std::endl;
           break;
       }
     }
 
     Severity reportable_severity_{Severity::kWARNING};
-    rclcpp::Logger logger_{rclcpp::get_logger("tensorrt_common")};
   };
 
   template<typename T>
